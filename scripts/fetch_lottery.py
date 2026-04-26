@@ -33,8 +33,12 @@ client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
 def search_brave(query):
     resp = requests.get(
         'https://api.search.brave.com/res/v1/web/search',
-        headers={'X-Subscription-Token': BRAVE_KEY, 'Accept': 'application/json'},
-        params={'q': query, 'count': 20, 'country': 'jp', 'search_lang': 'ja'},
+        headers={
+            'X-Subscription-Token': BRAVE_KEY,
+            'Accept': 'application/json',
+            'Accept-Encoding': 'gzip',
+        },
+        params={'q': query, 'count': 20, 'country': 'JP', 'search_lang': 'ja'},
         timeout=15
     )
     resp.raise_for_status()
