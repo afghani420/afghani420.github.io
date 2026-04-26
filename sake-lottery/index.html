@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a1a1a">
+<title>お酒抽選情報</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf8f5;
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --line: #e8e4dd;
+    --active: #16a34a;
+    --active-bg: #f0fdf4;
+    --upcoming: #2563eb;
+    --upcoming-bg: #eff6ff;
+    --ended: #9ca3af;
+    --ended-bg: #f9fafb;
+    --official: #b45309;
+    --official-bg: #fef3c7;
+    --whisky: #92400e;
+    --sake: #1e40af;
+    --other: #5b21b6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--bg); color: var(--ink); min-height: 100vh; }
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    padding: 24px 16px 80px;
+    max-width: 720px;
+    margin: 0 auto;
+    font-size: 13px;
+  }
+
+  header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .header-top { display: flex; justify-content: space-between; align-items: baseline; }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: 28px;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  h1 em { font-style: italic; font-weight: 400; color: #b45309; }
+  .updated {
+    font-size: 10px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .back { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--ink-soft); text-decoration: none; }
+  .back:hover { color: var(--ink); }
+
+  .filters {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    border: 1px solid var(--line);
+    background: white;
+    padding: 8px 14px;
+    border-radius: 2px;
+    font-family: inherit;
+    font-size: 11px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .filter-btn.on { background: var(--ink); color: white; border-color: var(--ink); }
+
+  .section-head {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--ink-soft);
+    margin: 24px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-head .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    display: inline-block;
+  }
+  .dot-active { background: var(--active); }
+  .dot-upcoming { background: var(--upcoming); }
+  .dot-ended { background: var(--ended); }
+
+  .cards { display: flex; flex-direction: column; gap: 8px; }
+
+  .card {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--line);
+  }
+  .card[data-status="active"] { border-left-color: var(--active); }
+  .card[data-status="upcoming"] { border-left-color: var(--upcoming); }
+  .card[data-status="ended"] { border-left-color: var(--ended); opacity: 0.7; }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .badges { display: flex; gap: 4px; flex-wrap: wrap; flex-shrink: 0; }
+  .badge {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+  .badge-official { background: var(--official-bg); color: var(--official); }
+  .badge-retail { background: #f3f4f6; color: #6b7280; }
+  .badge-whisky { background: #fef3c7; color: var(--whisky); }
+  .badge-sake { background: #dbeafe; color: var(--sake); }
+  .badge-other { background: #ede9fe; color: var(--other); }
+
+  .product {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--ink);
+    flex: 1;
+  }
+
+  .meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 3px 10px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+  }
+  .meta-label { color: #b5b0a6; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .meta-value { color: var(--ink); }
+  .meta-value.price {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .meta-value.source { color: var(--ink-soft); font-size: 11px; }
+
+  .period {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+    padding: 8px 10px;
+    background: var(--bg);
+    border-radius: 2px;
+  }
+  .period.active-period { background: var(--active-bg); color: #15803d; }
+  .period.upcoming-period { background: var(--upcoming-bg); color: #1d4ed8; }
+  .period-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.7; display: block; margin-bottom: 2px; }
+
+  .notes {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+    padding-left: 10px;
+    border-left: 2px solid var(--line);
+  }
+
+  .apply-btn {
+    display: block;
+    text-align: center;
+    background: var(--ink);
+    color: white;
+    padding: 10px;
+    border-radius: 2px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .card[data-status="active"] .apply-btn { background: var(--active); }
+  .card[data-status="upcoming"] .apply-btn { background: var(--upcoming); }
+  .card[data-status="ended"] .apply-btn { background: var(--ended); pointer-events: none; }
+  .apply-btn:active { opacity: 0.85; }
+
+  .empty { text-align: center; padding: 40px 16px; color: var(--ink-soft); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .count-badge {
+    background: var(--line);
+    color: var(--ink-soft);
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 10px;
+    margin-left: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <h1>Sake<em>·</em>Lottery</h1>
+    <div class="updated" id="updated">— loading</div>
+  </div>
+  <a class="back" href="../">← ツール一覧</a>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn on" data-cat="all">すべて</button>
+  <button class="filter-btn" data-cat="whisky">ウイスキー</button>
+  <button class="filter-btn" data-cat="sake">日本酒・焼酎</button>
+  <button class="filter-btn" data-cat="other">その他</button>
+</div>
+
+<div id="root"></div>
+
+<script>
+const CAT_LABEL = { whisky: 'Whisky', sake: '日本酒', other: 'Other' };
+const CAT_BADGE = { whisky: 'badge-whisky', sake: 'badge-sake', other: 'badge-other' };
+
+let allData = [];
+let currentCat = 'all';
+
+function formatDate(iso) {
+  if (!iso) return null;
+  try {
+    const d = new Date(iso);
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+    const day = d.getDate();
+    const h = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${y}/${m}/${day} ${h}:${min}`;
+  } catch { return iso; }
+}
+
+function computeStatus(item) {
+  const now = new Date();
+  const start = item.start_date ? new Date(item.start_date) : null;
+  const end = item.end_date ? new Date(item.end_date) : null;
+  if (end && end < now) return 'ended';
+  if (start && start > now) return 'upcoming';
+  return 'active';
+}
+
+function statusLabel(s) {
+  return { active: '募集中', upcoming: '募集前', ended: '終了済' }[s] || s;
+}
+
+function renderCard(item) {
+  const status = computeStatus(item);
+  const cat = item.category || 'other';
+  const catLabel = CAT_LABEL[cat] || 'Other';
+  const catBadge = CAT_BADGE[cat] || 'badge-other';
+  const isOfficial = item.is_official;
+
+  const start = formatDate(item.start_date);
+  const end = formatDate(item.end_date);
+  let periodHtml = '';
+  if (start || end) {
+    const cls = status === 'active' ? 'active-period' : status === 'upcoming' ? 'upcoming-period' : '';
+    const label = status === 'active' ? '応募受付中' : status === 'upcoming' ? '応募開始前' : '応募終了';
+    periodHtml = `<div class="period ${cls}">
+      <span class="period-label">${label}</span>
+      ${start ? `開始: ${start}` : ''}${start && end ? ' 〜 ' : ''}${end ? `終了: ${end}` : ''}
+    </div>`;
+  }
+
+  const priceHtml = item.price_text
+    ? `<span class="meta-label">価格</span><span class="meta-value price">${item.price_text}</span>`
+    : '';
+  const sourceName = item.source_name || (item.url ? new URL(item.url).hostname : '');
+  const sourceHtml = `<span class="meta-label">掲載元</span><span class="meta-value source">${sourceName}</span>`;
+
+  const notesHtml = item.notes
+    ? `<div class="notes">${item.notes}</div>`
+    : '';
+
+  const btnLabel = status === 'active' ? '→ 応募ページを開く' : status === 'upcoming' ? '→ 詳細を見る' : '終了済';
+
+  return `
+    <div class="card" data-status="${status}" data-cat="${cat}">
+      <div class="card-top">
+        <div class="product">${item.product}</div>
+        <div class="badges">
+          <span class="badge ${catBadge}">${catLabel}</span>
+          <span class="badge ${isOfficial ? 'badge-official' : 'badge-retail'}">${isOfficial ? '公式' : '販売店'}</span>
+        </div>
+      </div>
+      <div class="meta">
+        ${priceHtml}
+        ${sourceHtml}
+      </div>
+      ${periodHtml}
+      ${notesHtml}
+      <a class="apply-btn" href="${item.url}" target="_blank" rel="noopener">${btnLabel}</a>
+    </div>
+  `;
+}
+
+function render() {
+  const root = document.getElementById('root');
+  const filtered = currentCat === 'all'
+    ? allData
+    : allData.filter(i => i.category === currentCat);
+
+  const groups = { active: [], upcoming: [], ended: [] };
+  filtered.forEach(item => {
+    const s = computeStatus(item);
+    groups[s].push(item);
+  });
+
+  let html = '';
+  const sections = [
+    { key: 'active', label: '募集中', dotClass: 'dot-active' },
+    { key: 'upcoming', label: '募集前', dotClass: 'dot-upcoming' },
+    { key: 'ended', label: '終了済', dotClass: 'dot-ended' },
+  ];
+
+  let total = 0;
+  sections.forEach(({ key, label, dotClass }) => {
+    const items = groups[key];
+    if (!items.length) return;
+    total += items.length;
+    html += `<div class="section-head"><span class="dot ${dotClass}"></span>${label}<span class="count-badge">${items.length}</span></div>`;
+    html += `<div class="cards">${items.map(renderCard).join('')}</div>`;
+  });
+
+  if (!total) {
+    html = '<div class="empty">該当する情報がありません</div>';
+  }
+
+  root.innerHTML = html;
+}
+
+// Filter buttons
+document.getElementById('filters').addEventListener('click', e => {
+  if (e.target.tagName !== 'BUTTON') return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('on'));
+  e.target.classList.add('on');
+  currentCat = e.target.dataset.cat;
+  render();
+});
+
+// Load data
+fetch('data/lotteries.json?' + Date.now())
+  .then(r => r.json())
+  .then(data => {
+    allData = data;
+    if (data.length > 0) {
+      const latest = data.reduce((a, b) =>
+        (a.found_at || '') > (b.found_at || '') ? a : b
+      );
+      if (latest.found_at) {
+        const d = new Date(latest.found_at);
+        document.getElementById('updated').textContent =
+          `更新: ${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      }
+    } else {
+      document.getElementById('updated').textContent = 'データ収集中…';
+    }
+    render();
+  })
+  .catch(() => {
+    document.getElementById('root').innerHTML =
+      '<div class="empty">データを読み込めませんでした</div>';
+  });
+</script>
+</body>
+</html>
