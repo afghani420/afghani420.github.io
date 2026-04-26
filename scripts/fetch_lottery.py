@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import json
+import re
 import sys
 import time
 import hashlib
@@ -68,7 +69,7 @@ def extract_lotteries(results, query):
     "url": "応募ページのURL",
     "start_date": "応募開始日時（ISO 8601、例: '2026-04-20T10:00:00+09:00'）または null",
     "end_date": "応募終了日時（ISO 8601）または null",
-    "is_ended": true（テキストに「終了」「受付終了」「締め切り」「終了済み」等の記述があればtrue）/ false,
+    "is_ended": true（以下のいずれかに該当する場合true）/ false,
     "notes": "抽選日・当選発表日・本数制限等の補足（なければnull）"
   }}
 ]
@@ -78,6 +79,8 @@ def extract_lotteries(results, query):
 - 同じ商品が複数の検索結果に出た場合は1件のみ
 - URLが不明・不完全な場合は除外
 - 価格・応募期間はスニペットに記載があれば必ず抽出する（「〜円」「〜月〜日」等）
+- is_ended=trueにする条件: 「終了」「受付終了」「締め切り」の記述がある / URLやタイトル・概要に今年（{datetime.now(timezone.utc).year}年）より前の年が含まれる / 応募期間が明らかに過去である
+- is_ended=falseにする条件: 今まさに応募受付中、または開始予定が確認できる場合のみ。判断できない場合はis_ended=trueとする
 
 検索結果:
 {text}
@@ -133,6 +136,11 @@ def parse_date(s):
 
 ENDED_KEYWORDS = ['終了', '受付終了', '締め切り', '終了済', '応募終了', '受付を終了', '終了しました']
 
+def _has_past_year(text):
+    current_year = datetime.now(timezone.utc).year
+    years = re.findall(r'20\d{2}', text or '')
+    return years and all(int(y) < current_year for y in years)
+
 def compute_status(item):
     now = datetime.now(timezone.utc)
     start = parse_date(item.get('start_date'))
@@ -144,6 +152,10 @@ def compute_status(item):
         return 'ended'
     notes = (item.get('notes') or '') + (item.get('product') or '')
     if any(kw in notes for kw in ENDED_KEYWORDS):
+        return 'ended'
+    # URLやnotesに過去年のみ含まれる場合は終了扱い
+    url_and_notes = (item.get('url') or '') + ' ' + (item.get('notes') or '')
+    if _has_past_year(url_and_notes):
         return 'ended'
     if start and start > now:
         return 'upcoming'
@@ -177,6 +189,9 @@ def main():
                     for field in ('price', 'price_text', 'start_date', 'end_date', 'notes'):
                         if item.get(field) and not existing_item.get(field):
                             existing_item[field] = item[field]
+                    # is_ended は true への更新のみ許可
+                    if item.get('is_ended') and not existing_item.get('is_ended'):
+                        existing_item['is_ended'] = True
             time.sleep(1)
         except Exception as e:
             print(f"Error for '{query}': {e}")

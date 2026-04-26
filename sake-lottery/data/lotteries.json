@@ -41,11 +41,11 @@
     "url": "https://www.sakenomy.jp/drawing/TST0000047572_720/",
     "start_date": null,
     "end_date": null,
-    "is_ended": false,
+    "is_ended": true,
     "notes": "フォームからのみ応募受付",
     "id": "3ede34cea7ea",
     "found_at": "2026-04-26T15:03:01.136910+00:00",
-    "status": "active"
+    "status": "ended"
   },
   {
     "product": "焼酎 魔王 1800ml",
