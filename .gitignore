@@ -1,1 +1,5 @@
 .api-keys.env
+sake-lottery/
+scripts/fetch_lottery.py
+requirements-lottery.txt
+.github/workflows/fetch_lottery.yml
