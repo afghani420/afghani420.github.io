@@ -11,7 +11,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 import anthropic
 
-SERPER_KEY = os.environ['SERPER_API_KEY']
+BRAVE_KEY = os.environ['BRAVE_API_KEY']
 ANTHROPIC_KEY = os.environ['ANTHROPIC_API_KEY']
 
 DATA_FILE = 'sake-lottery/data/lotteries.json'
@@ -29,15 +29,15 @@ SEARCH_QUERIES = [
 client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
 
 
-def search_serper(query):
-    resp = requests.post(
-        'https://google.serper.dev/search',
-        headers={'X-API-KEY': SERPER_KEY, 'Content-Type': 'application/json'},
-        json={'q': query, 'gl': 'jp', 'hl': 'ja', 'num': 50},
+def search_brave(query):
+    resp = requests.get(
+        'https://api.search.brave.com/res/v1/web/search',
+        headers={'X-Subscription-Token': BRAVE_KEY, 'Accept': 'application/json'},
+        params={'q': query, 'count': 20, 'country': 'jp', 'search_lang': 'ja'},
         timeout=15
     )
     resp.raise_for_status()
-    return resp.json().get('organic', [])
+    return resp.json().get('web', {}).get('results', [])
 
 
 def extract_lotteries(results, query):
@@ -45,7 +45,7 @@ def extract_lotteries(results, query):
         return []
 
     text = '\n\n'.join([
-        f"タイトル: {r.get('title', '')}\nURL: {r.get('link', '')}\n概要: {r.get('snippet', '')}"
+        f"タイトル: {r.get('title', '')}\nURL: {r.get('url', '')}\n概要: {r.get('description', '')}"
         for r in results
     ])
 
@@ -160,7 +160,7 @@ def main():
     for query in SEARCH_QUERIES:
         print(f"Searching: {query}")
         try:
-            results = search_serper(query)
+            results = search_brave(query)
             items = extract_lotteries(results, query)
             for item in items:
                 if not item.get('url') or not item.get('product'):
