@@ -142,7 +142,11 @@ ENDED_KEYWORDS = ['終了', '受付終了', '締め切り', '終了済', '応募
 
 def _has_past_year(text):
     current_year = datetime.now(timezone.utc).year
+    # 4桁年（単語境界）: /2025/, 2025年 など
     years = re.findall(r'\b20\d{2}\b', text or '')
+    # 6桁YYYYMM形式: whiskey202506 → 2025年6月など
+    yyyymm = re.findall(r'(?<!\d)(20\d{2})(?:0[1-9]|1[0-2])(?!\d)', text or '')
+    years = years + yyyymm
     return years and all(int(y) < current_year for y in years)
 
 def compute_status(item):
