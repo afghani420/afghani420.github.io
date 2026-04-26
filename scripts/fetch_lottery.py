@@ -162,6 +162,26 @@ def compute_status(item):
     return 'active'
 
 
+def build_site_queries(existing, max_sites=5, min_active=2):
+    """アクティブ件数が多い上位ドメインのsite:クエリを自動生成する"""
+    from urllib.parse import urlparse
+    from collections import Counter
+    domain_count = Counter()
+    for item in existing:
+        if item.get('status') in ('active', 'upcoming'):
+            try:
+                domain = urlparse(item['url']).netloc
+                if domain:
+                    domain_count[domain] += 1
+            except Exception:
+                pass
+    top_domains = [d for d, c in domain_count.most_common(max_sites) if c >= min_active]
+    queries = [f'site:{d} 抽選 応募受付中' for d in top_domains]
+    if queries:
+        print(f"自動site:クエリ追加: {queries}")
+    return queries
+
+
 def main():
     existing = load_existing()
     existing_map = {item['id']: item for item in existing}
@@ -169,7 +189,9 @@ def main():
     now_iso = datetime.now(timezone.utc).isoformat()
     new_count = 0
 
-    for query in SEARCH_QUERIES:
+    all_queries = SEARCH_QUERIES + build_site_queries(existing)
+
+    for query in all_queries:
         print(f"Searching: {query}")
         try:
             results = search_brave(query)
