@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a1a1a">
+<title>Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf8f5;
+    --ink: #1a1a1a;
+    --ink-soft: #5a5a5a;
+    --line: #e8e4dd;
+    --accent: #e62e04;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--bg); color: var(--ink); min-height: 100vh; }
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    padding: 40px 20px 80px;
+    max-width: 640px;
+    margin: 0 auto;
+    font-size: 14px;
+  }
+  header {
+    margin-bottom: 48px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: 36px;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  h1 em { font-style: italic; font-weight: 400; color: var(--accent); }
+  .subtitle {
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .tools { display: flex; flex-direction: column; gap: 2px; }
+  .tool {
+    display: block;
+    background: white;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--ink);
+    padding: 20px 20px;
+    text-decoration: none;
+    color: var(--ink);
+    border-radius: 2px;
+    transition: border-left-color 0.15s;
+  }
+  .tool:hover { border-left-color: var(--accent); }
+  .tool-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .tool-icon { font-size: 18px; line-height: 1; }
+  .tool-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+  }
+  .tool-desc {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .tool-url {
+    margin-top: 8px;
+    font-size: 10px;
+    color: #b0aca5;
+    letter-spacing: 0.05em;
+  }
+  footer {
+    margin-top: 48px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-size: 11px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>My<em>·</em>Tools</h1>
+    <div class="subtitle">small utilities / afghani420</div>
+  </header>
+
+  <div class="tools">
+    <a class="tool" href="ali-search/">
+      <div class="tool-head">
+        <span class="tool-icon">🔍</span>
+        <span class="tool-name">AliExpress 多言語検索</span>
+      </div>
+      <div class="tool-desc">日本語で入力するだけで英語・中国語に自動翻訳し、AliExpressの検索リンクを3言語同時生成。検索履歴付き。</div>
+      <div class="tool-url">afghani420.github.io/ali-search/</div>
+    </a>
+  </div>
+
+  <footer>— 随時追加予定</footer>
+</body>
+</html>
