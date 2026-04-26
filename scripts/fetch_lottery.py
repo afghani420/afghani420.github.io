@@ -33,7 +33,7 @@ def search_serper(query):
     resp = requests.post(
         'https://google.serper.dev/search',
         headers={'X-API-KEY': SERPER_KEY, 'Content-Type': 'application/json'},
-        json={'q': query, 'gl': 'jp', 'hl': 'ja', 'num': 10},
+        json={'q': query, 'gl': 'jp', 'hl': 'ja', 'num': 50},
         timeout=15
     )
     resp.raise_for_status()
