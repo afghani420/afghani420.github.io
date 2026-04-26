@@ -256,6 +256,8 @@ function computeStatus(item) {
   const end = item.end_date ? new Date(item.end_date) : null;
   if (end && end < now) return 'ended';
   if (start && start > now) return 'upcoming';
+  // end_dateなしの場合はPython側で計算したstatusを信頼
+  if (!end && item.status) return item.status;
   return 'active';
 }
 

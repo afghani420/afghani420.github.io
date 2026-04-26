@@ -68,6 +68,7 @@ def extract_lotteries(results, query):
     "url": "応募ページのURL",
     "start_date": "応募開始日時（ISO 8601、例: '2026-04-20T10:00:00+09:00'）または null",
     "end_date": "応募終了日時（ISO 8601）または null",
+    "is_ended": true（テキストに「終了」「受付終了」「締め切り」「終了済み」等の記述があればtrue）/ false,
     "notes": "抽選日・当選発表日・本数制限等の補足（なければnull）"
   }}
 ]
@@ -76,6 +77,7 @@ def extract_lotteries(results, query):
 - 確実に抽選販売とわかる情報のみ含める
 - 同じ商品が複数の検索結果に出た場合は1件のみ
 - URLが不明・不完全な場合は除外
+- 価格・応募期間はスニペットに記載があれば必ず抽出する（「〜円」「〜月〜日」等）
 
 検索結果:
 {text}
@@ -129,12 +131,19 @@ def parse_date(s):
         return None
 
 
+ENDED_KEYWORDS = ['終了', '受付終了', '締め切り', '終了済', '応募終了', '受付を終了', '終了しました']
+
 def compute_status(item):
     now = datetime.now(timezone.utc)
     start = parse_date(item.get('start_date'))
     end = parse_date(item.get('end_date'))
 
     if end and end < now:
+        return 'ended'
+    if item.get('is_ended'):
+        return 'ended'
+    notes = (item.get('notes') or '') + (item.get('product') or '')
+    if any(kw in notes for kw in ENDED_KEYWORDS):
         return 'ended'
     if start and start > now:
         return 'upcoming'
