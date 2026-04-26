@@ -1,21 +1,5 @@
 [
   {
-    "product": "山崎 Story of the Distillery 2026 EDITION",
-    "price_text": null,
-    "price": null,
-    "category": "whisky",
-    "is_official": true,
-    "source_name": "サントリー公式サイト",
-    "url": "https://www.suntory.co.jp/whisky/yamazaki/yamazaki_club/035/",
-    "start_date": null,
-    "end_date": null,
-    "is_ended": true,
-    "notes": "応募受付は終了済み",
-    "id": "e668df2c8bf2",
-    "found_at": "2026-04-26T15:03:01.136910+00:00",
-    "status": "ended"
-  },
-  {
     "product": "サントリーウイスキー 山崎25年",
     "price_text": null,
     "price": null,
@@ -30,22 +14,6 @@
     "id": "ac03a04b5e72",
     "found_at": "2026-04-26T15:03:01.136910+00:00",
     "status": "active"
-  },
-  {
-    "product": "十四代 秘蔵乙焼酎",
-    "price_text": null,
-    "price": null,
-    "category": "sake",
-    "is_official": false,
-    "source_name": "Sakenomy",
-    "url": "https://www.sakenomy.jp/drawing/TST0000047572_720/",
-    "start_date": null,
-    "end_date": null,
-    "is_ended": true,
-    "notes": "フォームからのみ応募受付",
-    "id": "3ede34cea7ea",
-    "found_at": "2026-04-26T15:03:01.136910+00:00",
-    "status": "ended"
   },
   {
     "product": "焼酎 魔王 1800ml",
@@ -94,6 +62,38 @@
     "id": "6bbdbfa89ced",
     "found_at": "2026-04-26T15:03:01.136910+00:00",
     "status": "active"
+  },
+  {
+    "product": "山崎 Story of the Distillery 2026 EDITION",
+    "price_text": null,
+    "price": null,
+    "category": "whisky",
+    "is_official": true,
+    "source_name": "サントリー公式サイト",
+    "url": "https://www.suntory.co.jp/whisky/yamazaki/yamazaki_club/035/",
+    "start_date": null,
+    "end_date": null,
+    "is_ended": true,
+    "notes": "応募受付は終了済み",
+    "id": "e668df2c8bf2",
+    "found_at": "2026-04-26T15:03:01.136910+00:00",
+    "status": "ended"
+  },
+  {
+    "product": "十四代 秘蔵乙焼酎",
+    "price_text": null,
+    "price": null,
+    "category": "sake",
+    "is_official": false,
+    "source_name": "Sakenomy",
+    "url": "https://www.sakenomy.jp/drawing/TST0000047572_720/",
+    "start_date": null,
+    "end_date": null,
+    "is_ended": true,
+    "notes": "フォームからのみ応募受付",
+    "id": "3ede34cea7ea",
+    "found_at": "2026-04-26T15:03:01.136910+00:00",
+    "status": "ended"
   },
   {
     "product": "白州 Story of the Distillery 2026 EDITION",
