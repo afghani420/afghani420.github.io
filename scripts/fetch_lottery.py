@@ -166,6 +166,61 @@ def compute_status(item):
     return 'active'
 
 
+def verify_active_item(item):
+    """URLを実際に取得してClaudeに受付状況を確認する。終了なら True を返す。"""
+    url = item.get('url', '')
+    if not url:
+        return False
+    try:
+        resp = requests.get(
+            url,
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'},
+            timeout=10,
+            allow_redirects=True
+        )
+        if resp.status_code == 404:
+            print(f"  404 → 終了扱い: {url[:60]}")
+            return True
+        if resp.status_code != 200:
+            return False
+        text = re.sub(r'<[^>]+>', ' ', resp.text[:10000])
+        text = re.sub(r'\s+', ' ', text).strip()[:3000]
+    except Exception as e:
+        print(f"  フェッチ失敗 [{url[:50]}]: {e}")
+        return False
+
+    product = item.get('product', '')
+    prompt = f"""以下のWebページの内容を見て、「{product}」の抽選販売がまだ応募受付中か判断してください。
+
+ページ内容（一部）:
+{text}
+
+以下のJSONのみで返してください:
+{{"is_accepting": true または false, "reason": "判断理由（1行）"}}
+
+注意: 明確に終了・SOLD OUT・締め切り済みと確認できる場合のみ false。不明な場合は true。"""
+
+    try:
+        message = client.messages.create(
+            model='claude-haiku-4-5',
+            max_tokens=150,
+            messages=[{'role': 'user', 'content': prompt}]
+        )
+        raw = message.content[0].text.strip()
+        if '```' in raw:
+            raw = raw.split('```')[1].split('```')[0].strip()
+            if raw.startswith('json'):
+                raw = raw[4:].strip()
+        result = json.loads(raw)
+        is_accepting = result.get('is_accepting', True)
+        reason = result.get('reason', '')
+        print(f"  検証: {product[:30]} → {'受付中' if is_accepting else '終了'} ({reason})")
+        return not is_accepting
+    except Exception as e:
+        print(f"  検証パースエラー [{product[:30]}]: {e}")
+        return False
+
+
 def build_site_queries(existing, max_sites=5, min_count=2, days=90):
     """直近N日以内に発見されたエントリが多い上位ドメインのsite:クエリを自動生成する"""
     from urllib.parse import urlparse
@@ -226,6 +281,18 @@ def main():
             print(f"Error for '{query}': {e}")
 
     all_items = list(existing_map.values())
+
+    # アクティブアイテムをページ直接フェッチで検証
+    print("=== アクティブアイテム検証 ===")
+    for item in all_items:
+        if item.get('is_ended'):
+            continue
+        temp_status = compute_status(item)
+        if temp_status == 'active':
+            ended = verify_active_item(item)
+            if ended:
+                item['is_ended'] = True
+            time.sleep(0.5)
 
     # recompute status
     for item in all_items:
