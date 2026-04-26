@@ -162,20 +162,23 @@ def compute_status(item):
     return 'active'
 
 
-def build_site_queries(existing, max_sites=5, min_active=2):
-    """アクティブ件数が多い上位ドメインのsite:クエリを自動生成する"""
+def build_site_queries(existing, max_sites=5, min_count=2, days=90):
+    """直近N日以内に発見されたエントリが多い上位ドメインのsite:クエリを自動生成する"""
     from urllib.parse import urlparse
     from collections import Counter
+    cutoff = datetime.now(timezone.utc).timestamp() - days * 86400
     domain_count = Counter()
     for item in existing:
-        if item.get('status') in ('active', 'upcoming'):
-            try:
-                domain = urlparse(item['url']).netloc
-                if domain:
-                    domain_count[domain] += 1
-            except Exception:
-                pass
-    top_domains = [d for d, c in domain_count.most_common(max_sites) if c >= min_active]
+        found = parse_date(item.get('found_at'))
+        if not found or found.timestamp() < cutoff:
+            continue
+        try:
+            domain = urlparse(item['url']).netloc
+            if domain:
+                domain_count[domain] += 1
+        except Exception:
+            pass
+    top_domains = [d for d, c in domain_count.most_common(max_sites) if c >= min_count]
     queries = [f'site:{d} 抽選 応募受付中' for d in top_domains]
     if queries:
         print(f"自動site:クエリ追加: {queries}")
